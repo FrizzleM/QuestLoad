@@ -1,3 +1,4 @@
+```html
 <!doctype html>
 <html lang="en">
 <head>
@@ -16,125 +17,115 @@
       --panel-2: rgba(255,255,255,.05);
       --border: rgba(255,255,255,.14);
       --border-soft: rgba(255,255,255,.10);
-
-      --text: rgba(255,255,255,.94);
+      --text: rgba(255,255,255,.92);
       --muted: rgba(255,255,255,.68);
+      --muted-2: rgba(255,255,255,.55);
 
       --accent: #7c5cff;
-      --accent-2: #55d6ff;
+      --accent-2: #49a3ff;
       --good: #22c55e;
       --danger: #ef4444;
+      --warn: #fbbf24;
 
-      --radius: 22px;
-      --radius-sm: 14px;
-
-      --shadow: 0 24px 70px rgba(0,0,0,.55);
-      --shadow-soft: 0 12px 30px rgba(0,0,0,.35);
-
-      --focus: 0 0 0 4px rgba(124,92,255,.35);
+      --radius: 18px;
+      --shadow: 0 20px 70px rgba(0,0,0,.55);
+      --shadow-soft: 0 8px 24px rgba(0,0,0,.35);
+      --ring: 0 0 0 4px rgba(124,92,255,.25);
+      --ring-2: 0 0 0 4px rgba(73,163,255,.22);
     }
 
-    *{ box-sizing: border-box; }
+    *{ box-sizing:border-box; }
     html,body{ height:100%; }
-
     body{
       margin:0;
-      min-height:100vh;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      font: 15px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
       color: var(--text);
-
       background:
-        radial-gradient(900px 560px at 20% 6%, rgba(124,92,255,.25), transparent 55%),
-        radial-gradient(900px 560px at 80% 20%, rgba(85,214,255,.16), transparent 55%),
-        radial-gradient(900px 560px at 70% 88%, rgba(34,197,94,.14), transparent 60%),
-        linear-gradient(180deg, var(--bg-0), var(--bg-1));
+        radial-gradient(900px 500px at 20% 8%, rgba(124,92,255,.25), transparent 58%),
+        radial-gradient(900px 500px at 80% 18%, rgba(73,163,255,.18), transparent 60%),
+        radial-gradient(800px 600px at 50% 100%, rgba(255,255,255,.06), transparent 60%),
+        linear-gradient(180deg, var(--bg-0), var(--bg-1) 55%, #060915);
       display:flex;
+      align-items:flex-start;
       justify-content:center;
-      padding: 28px 16px 40px;
+      padding: 28px 16px 42px;
     }
 
-    /* subtle noise */
-    body::before{
-      content:"";
-      position: fixed;
-      inset: 0;
-      pointer-events:none;
-      opacity:.10;
-      background-image:
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
-      mix-blend-mode: overlay;
-    }
+    a{ color: inherit; }
 
     .wrap{
-      width: min(1040px, 100%);
-      position: relative;
+      width: min(980px, 100%);
     }
 
-    /* Header */
     .hero{
       display:flex;
+      align-items:center;
       justify-content:space-between;
-      align-items:flex-start;
       gap: 14px;
-      margin-bottom: 18px;
+      margin-bottom: 14px;
     }
 
     .brand{
       display:flex;
-      gap: 12px;
       align-items:center;
+      gap: 12px;
       min-width: 0;
     }
 
     .logo{
-      width: 44px; height: 44px;
+      width: 42px;
+      height: 42px;
       border-radius: 14px;
       background:
-        radial-gradient(18px 18px at 30% 30%, rgba(255,255,255,.20), transparent 60%),
-        linear-gradient(135deg, rgba(124,92,255,.85), rgba(85,214,255,.55));
-      box-shadow: 0 18px 40px rgba(0,0,0,.45);
-      border: 1px solid rgba(255,255,255,.16);
+        radial-gradient(16px 16px at 30% 30%, rgba(255,255,255,.35), transparent 60%),
+        radial-gradient(16px 16px at 70% 70%, rgba(255,255,255,.18), transparent 60%),
+        linear-gradient(135deg, rgba(124,92,255,.95), rgba(73,163,255,.85));
+      box-shadow: var(--shadow-soft);
       flex: 0 0 auto;
+      position: relative;
+      overflow:hidden;
+    }
+    .logo::after{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background: linear-gradient(135deg, rgba(255,255,255,.18), transparent 55%);
+      transform: rotate(10deg);
     }
 
     h1{
       margin:0;
-      font-size: 28px;
+      font-size: 22px;
       letter-spacing: .2px;
-      line-height: 1.1;
     }
+
     .sub{
       margin-top: 4px;
       color: var(--muted);
-      font-size: 14px;
-      line-height: 1.35;
-      max-width: 70ch;
+      max-width: 56ch;
+      font-size: 13.5px;
     }
 
     .meta-pill{
-      flex: 0 0 auto;
-      align-self: flex-start;
-      padding: 8px 10px;
-      border-radius: 999px;
       border: 1px solid var(--border);
-      background: rgba(0,0,0,.18);
-      color: rgba(255,255,255,.76);
-      font-size: 12px;
+      background: rgba(255,255,255,.06);
+      border-radius: 999px;
+      padding: 8px 10px;
+      color: var(--muted);
+      font-size: 12.5px;
       white-space: nowrap;
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
     }
 
-    /* Main glass card */
     .card{
-      background: linear-gradient(180deg, rgba(255,255,255,.09), rgba(255,255,255,.04));
       border: 1px solid var(--border);
-      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+      border-radius: calc(var(--radius) + 4px);
       box-shadow: var(--shadow);
-      overflow:hidden;
-
-      backdrop-filter: blur(14px) saturate(140%);
-      -webkit-backdrop-filter: blur(14px) saturate(140%);
+      overflow: hidden;
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
     }
 
     .topbar{
@@ -146,313 +137,297 @@
       justify-content: space-between;
     }
 
-    .steps{
-      display:flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      align-items:center;
-      margin:0;
-      padding:0;
-      list-style:none;
-    }
-    .step{
-      display:flex;
-      gap: 8px;
-      align-items:center;
-      padding: 7px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.14);
-      color: rgba(255,255,255,.78);
-      font-size: 12px;
-      user-select:none;
-    }
-    .dot{
-      width: 8px; height: 8px;
-      border-radius: 999px;
-      background: rgba(255,255,255,.35);
-      box-shadow: 0 0 0 3px rgba(255,255,255,.06);
-    }
-    .step.is-active{
-      border-color: rgba(124,92,255,.45);
-      background: rgba(124,92,255,.16);
-      color: rgba(255,255,255,.92);
-    }
-    .step.is-active .dot{
-      background: rgba(124,92,255,.95);
-      box-shadow: 0 0 0 3px rgba(124,92,255,.20);
-    }
-
     .status{
-      display:flex;
-      gap: 10px;
-      align-items:center;
-      color: rgba(255,255,255,.78);
-      font-size: 12px;
-      white-space: nowrap;
-      min-width: 0;
-    }
-    .status strong{
-      color: rgba(255,255,255,.92);
-      font-weight: 700;
-    }
-    .kbd{
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-      font-size: 11px;
-      padding: 2px 6px;
-      border-radius: 8px;
-      border: 1px solid rgba(255,255,255,.14);
-      background: rgba(0,0,0,.18);
-      color: rgba(255,255,255,.74);
+      color: var(--muted);
+      font-size: 13px;
+      max-width: 100%;
     }
 
     .section{
-      padding: 16px;
-      border-bottom: 1px solid var(--border-soft);
+      padding: 18px 16px;
+      border-top: 1px solid rgba(255,255,255,.06);
     }
-    .section:last-child{ border-bottom: none; }
+    .section:first-of-type{ border-top: none; }
 
     .rowhead{
       display:flex;
-      justify-content:space-between;
       align-items:flex-start;
+      justify-content:space-between;
       gap: 12px;
-      margin-bottom: 8px;
+      margin-bottom: 12px;
     }
-
     .title{
-      font-size: 15px;
-      font-weight: 800;
-      letter-spacing: .2px;
-      margin:0 0 4px;
-      display:flex;
-      gap: 10px;
-      align-items:center;
+      font-weight: 650;
+      letter-spacing: .1px;
+      font-size: 14.5px;
+      margin-bottom: 4px;
     }
-
-    .badge{
-      font-size: 11px;
-      padding: 4px 8px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.14);
-      background: rgba(0,0,0,.18);
-      color: rgba(255,255,255,.72);
-      white-space: nowrap;
-    }
-
     .desc{
-      font-size: 13px;
-      color: var(--muted);
-      line-height: 1.45;
       margin:0;
+      color: var(--muted);
+      font-size: 13px;
+      max-width: 78ch;
     }
 
-    .callout{
-      margin-top: 10px;
-      padding: 10px 12px;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.16);
-      color: rgba(255,255,255,.76);
-      font-size: 12.5px;
-      line-height: 1.45;
-    }
-    .callout b{ color: rgba(255,255,255,.92); }
-
-    /* Buttons */
     .actions{
       display:flex;
       gap: 10px;
       flex-wrap: wrap;
-      margin-top: 12px;
+      align-items:center;
     }
 
     button{
       appearance:none;
-      border-radius: 14px;
-      padding: 11px 14px;
-      border: 1px solid rgba(255,255,255,.14);
+      border: 1px solid var(--border);
       background: rgba(255,255,255,.06);
       color: var(--text);
-      font-weight: 800;
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-weight: 600;
+      letter-spacing: .1px;
       cursor:pointer;
-      transition: transform .12s ease, background .15s ease, border-color .15s ease, opacity .15s ease;
+      transition: transform .06s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease, opacity .2s ease;
+      box-shadow: 0 1px 0 rgba(255,255,255,.06) inset;
     }
-    button:hover{ background: rgba(255,255,255,.10); }
+    button:hover{ background: rgba(255,255,255,.085); }
     button:active{ transform: translateY(1px); }
-    button:focus-visible{ outline: none; box-shadow: var(--focus); }
-    button[disabled]{ opacity: .45; cursor: not-allowed; transform:none; }
+    button:focus-visible{ outline:none; box-shadow: var(--ring); }
 
-    .primary{
-      background: rgba(124,92,255,.20);
-      border-color: rgba(124,92,255,.50);
+    button.primary{
+      border-color: rgba(124,92,255,.55);
+      background: linear-gradient(180deg, rgba(124,92,255,.92), rgba(124,92,255,.70));
+      box-shadow: 0 10px 30px rgba(124,92,255,.20);
     }
-    .primary:hover{ background: rgba(124,92,255,.26); }
-
-    .danger{
-      background: rgba(239,68,68,.16);
-      border-color: rgba(239,68,68,.46);
+    button.primary:hover{
+      background: linear-gradient(180deg, rgba(124,92,255,.98), rgba(124,92,255,.74));
     }
-    .danger:hover{ background: rgba(239,68,68,.20); }
+    button.primary:focus-visible{ box-shadow: var(--ring); }
 
-    /* Pickers */
+    button.danger{
+      border-color: rgba(239,68,68,.55);
+      background: rgba(239,68,68,.14);
+    }
+    button.danger:hover{ background: rgba(239,68,68,.18); }
+
+    button.mini{
+      padding: 8px 10px;
+      border-radius: 12px;
+      font-size: 12.5px;
+      font-weight: 650;
+      color: var(--muted);
+    }
+
+    button[disabled]{
+      opacity: .45;
+      cursor: not-allowed;
+      transform:none;
+    }
+
     .grid{
       display:grid;
       grid-template-columns: 1fr 1fr;
       gap: 12px;
       margin-top: 12px;
     }
-    @media (max-width: 860px){
-      .hero{ flex-direction: column; align-items:flex-start; }
-      .meta-pill{ align-self: flex-start; }
-      .grid{ grid-template-columns: 1fr; }
-      .topbar{ align-items:flex-start; flex-direction: column; }
-      .status{ white-space: normal; }
-    }
 
     .picker{
-      border: 1.5px solid rgba(255,255,255,.10);
+      border: 1px solid var(--border-soft);
       background: rgba(255,255,255,.04);
-      border-radius: 18px;
+      border-radius: 16px;
       padding: 14px;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
+      box-shadow: 0 1px 0 rgba(255,255,255,.06) inset;
+      transition: border-color .2s ease, background .2s ease, box-shadow .2s ease, transform .08s ease;
       cursor:pointer;
-      gap: 12px;
-      min-height: 76px;
-      transition: border-color .15s ease, transform .12s ease, background .15s ease;
+      position: relative;
+      overflow:hidden;
+      user-select:none;
     }
     .picker:hover{
-      border-color: rgba(255,255,255,.18);
-      background: rgba(255,255,255,.06);
+      background: rgba(255,255,255,.055);
+      border-color: rgba(255,255,255,.16);
     }
     .picker:active{ transform: translateY(1px); }
-    .picker:focus-visible{ outline:none; box-shadow: var(--focus); }
-
-    .picker strong{ display:block; font-size: 13px; }
-    .picker span{ display:block; font-size: 12px; color: var(--muted); margin-top: 4px; max-width: 70ch; }
-
-    .tag{
-      font-size: 11px;
-      padding: 5px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.14);
-      background: rgba(0,0,0,.18);
-      color: rgba(255,255,255,.75);
-      white-space: nowrap;
-      display:flex;
-      gap: 6px;
-      align-items:center;
-    }
-    .tag .mini-dot{
-      width: 7px; height: 7px;
-      border-radius: 999px;
-      background: rgba(255,255,255,.30);
-    }
-
     .picker.is-selected{
       border-color: rgba(124,92,255,.55);
+      box-shadow: var(--ring), 0 1px 0 rgba(255,255,255,.06) inset;
       background: rgba(124,92,255,.10);
     }
-    .picker.is-selected .tag{
-      border-color: rgba(124,92,255,.55);
-      background: rgba(124,92,255,.16);
-    }
-    .picker.is-selected .tag .mini-dot{
-      background: rgba(124,92,255,.95);
+    .picker:focus-visible{
+      outline:none;
+      box-shadow: var(--ring-2), 0 1px 0 rgba(255,255,255,.06) inset;
     }
 
-    /* Logs */
-    details{
-      border-top: 1px solid var(--border-soft);
-    }
-    details summary{
-      padding: 12px 16px;
-      cursor: pointer;
-      color: rgba(255,255,255,.80);
-      user-select:none;
+    .pick-top{
       display:flex;
-      justify-content:space-between;
       align-items:center;
-      gap: 12px;
-    }
-    details summary:focus-visible{ outline:none; box-shadow: var(--focus); border-radius: 14px; }
-    .log-actions{
-      display:flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-    .mini{
-      padding: 8px 10px;
-      border-radius: 12px;
-      font-size: 12px;
-      font-weight: 800;
-    }
-    pre{
-      margin:0;
-      padding: 14px 16px 16px;
-      background: rgba(0,0,0,.25);
-      color: #b9ffcf;
-      font-size: 12.5px;
-      max-height: 320px;
-      overflow: auto;
-      line-height: 1.5;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-    }
-
-    /* Footer */
-    .footer{
-      margin-top: 14px;
-      color: rgba(255,255,255,.62);
-      font-size: 12px;
-      line-height: 1.45;
-      display:flex;
       justify-content:space-between;
       gap: 10px;
-      flex-wrap: wrap;
-      padding: 0 2px;
     }
+    .pick-title{
+      font-weight: 700;
+      letter-spacing:.1px;
+      font-size: 14px;
+      margin:0;
+    }
+    .pick-sub{
+      color: var(--muted);
+      font-size: 12.5px;
+      margin-top: 6px;
+    }
+
+    .tag{
+      display:inline-flex;
+      align-items:center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: var(--muted);
+      font-size: 11.5px;
+      font-weight: 700;
+      letter-spacing: .3px;
+      text-transform: uppercase;
+      white-space: nowrap;
+      flex:0 0 auto;
+    }
+
+    .mini-dot{
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.35);
+      box-shadow: 0 0 0 2px rgba(255,255,255,.10);
+    }
+    .picker.is-ready .mini-dot{ background: rgba(34,197,94,.95); box-shadow: 0 0 0 2px rgba(34,197,94,.18); }
+
+    .fileline{
+      margin-top: 12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed rgba(255,255,255,.10);
+      color: var(--muted);
+      font-size: 12.5px;
+    }
+    .fname{
+      overflow:hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 70%;
+    }
+    .fsize{
+      color: var(--muted-2);
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+
+    details{
+      margin-top: 14px;
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 16px;
+      overflow:hidden;
+      background: rgba(255,255,255,.03);
+    }
+    summary{
+      cursor:pointer;
+      padding: 12px 14px;
+      list-style:none;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+      color: var(--muted);
+      font-weight: 650;
+      user-select:none;
+    }
+    summary::-webkit-details-marker{ display:none; }
+
+    pre{
+      margin:0;
+      padding: 12px 14px 14px;
+      border-top: 1px solid rgba(255,255,255,.08);
+      max-height: 340px;
+      overflow:auto;
+      font-size: 12px;
+      line-height: 1.45;
+      color: rgba(255,255,255,.88);
+      background: rgba(0,0,0,.28);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    .footer{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 12.5px;
+      padding: 0 6px;
+    }
+
     .link{
-      color: rgba(124,92,255,.95);
+      color: rgba(255,255,255,.88);
       text-decoration: none;
+      border-bottom: 1px solid rgba(255,255,255,.25);
+      padding-bottom: 1px;
     }
-    .link:hover{ text-decoration: underline; }
+    .link:hover{ border-bottom-color: rgba(255,255,255,.55); }
+
+    .kbd{
+      display:inline-block;
+      padding: 2px 6px;
+      border-radius: 7px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.06);
+      font-size: 12px;
+      color: rgba(255,255,255,.85);
+      font-weight: 650;
+    }
+
+    @media (max-width: 760px){
+      .hero{
+        flex-direction: column;
+        align-items:flex-start;
+      }
+      .meta-pill{ align-self:flex-start; }
+      .grid{ grid-template-columns: 1fr; }
+      .footer{ flex-direction: column; align-items:flex-start; }
+      .fname{ max-width: 62%; }
+    }
 
     @media (prefers-reduced-motion: reduce){
       *{ transition:none !important; scroll-behavior:auto !important; }
-      button:active, .picker:active{ transform:none; }
+      button:active{ transform:none; }
+      .picker:active{ transform:none; }
     }
   </style>
 </head>
 
 <body>
-  <div class="wrap">
+  <main class="wrap">
     <div class="hero">
       <div class="brand">
         <div class="logo" aria-hidden="true"></div>
         <div>
           <h1>QuestLoad</h1>
           <div class="sub">
-            Install apps and games on Meta Quest with a clear 3‑step flow.
+            Install apps and games on Meta Quest with a clear 3-step flow.
             You don’t need to know what sideloading is — just follow the steps.
           </div>
         </div>
       </div>
 
       <div class="meta-pill" title="This page runs in your browser">
-        Runs locally • No sign‑in
+        Runs locally • No sign-in
       </div>
     </div>
 
     <div class="card">
       <div class="topbar">
-        <ol class="steps" aria-label="Setup steps">
-          <li class="step is-active"><span class="dot" aria-hidden="true"></span> Connect</li>
-          <li class="step"><span class="dot" aria-hidden="true"></span> Choose</li>
-          <li class="step"><span class="dot" aria-hidden="true"></span> Install</li>
-        </ol>
-
         <div class="status" aria-live="polite">
           <span><strong>Tip:</strong> If something looks stuck, open <span class="kbd">Logs</span> below.</span>
         </div>
@@ -462,14 +437,10 @@
       <div class="section" id="step1">
         <div class="rowhead">
           <div>
-            <div class="title">1. Connect your Quest <span class="badge">USB</span></div>
+            <div class="title">1. Connect your Quest</div>
             <p class="desc">
-              Plug in your headset, then accept the <b>USB debugging</b> pop‑up inside the headset.
+              Plug your Quest into your computer, then click connect. If you see a prompt inside the headset, allow USB access.
             </p>
-            <div class="callout">
-              <b>Before you connect:</b> Developer Mode must be enabled in the Meta Quest mobile app.
-              Then, when prompted in the headset, choose <b>Allow</b>.
-            </div>
           </div>
         </div>
 
@@ -477,13 +448,18 @@
           <button id="connect" class="primary" type="button">Connect Quest</button>
           <button id="disconnect" class="danger" type="button">Disconnect</button>
         </div>
+
+        <div class="callout">
+          <b>Before you connect:</b> Developer Mode must be enabled in the Meta Quest mobile app.
+          Then, when prompted inside the headset, allow USB debugging.
+        </div>
       </div>
 
       <!-- STEP 2 -->
       <div class="section" id="step2">
         <div class="rowhead">
           <div>
-            <div class="title">2. Choose what to install <span class="badge">Files</span></div>
+            <div class="title">2. Choose what to install</div>
             <p class="desc">
               Pick one option below. You can install a simple app (<b>.apk</b>) or a game folder with extra data (APK + OBB).
             </p>
@@ -492,29 +468,42 @@
 
         <div class="grid">
           <!-- APK -->
-          <div class="picker" id="apkPick" role="button" tabindex="0" aria-describedby="apkHelp">
-            <div id="apkLabel">
-              <strong>App (.apk)</strong>
-              <span id="apkHelp">Drop an .apk here, or click to choose. (No folders.)</span>
+          <div class="picker" id="apkPick" role="button" tabindex="0" aria-label="Select APK option">
+            <div class="pick-top">
+              <div>
+                <p class="pick-title">App (.apk)</p>
+                <div class="pick-sub">Most installs use a single file.</div>
+              </div>
+              <div class="tag" aria-label="APK selected status">
+                <span class="mini-dot" aria-hidden="true"></span><span>APK</span>
+              </div>
+              <input type="file" id="apk" accept=".apk" style="display:none">
             </div>
-            <div class="tag" aria-label="APK selected status"><span class="mini-dot" aria-hidden="true"></span><span>APK</span></div>
-            <input type="file" id="apk" accept=".apk" style="display:none">
+
+            <div class="fileline">
+              <div class="fname" id="apkName">No file selected</div>
+              <div class="fsize" id="apkSize">—</div>
+            </div>
           </div>
 
-          <!-- Bundle folder -->
-          <div class="picker" id="bundlePick" role="button" tabindex="0" aria-describedby="bundleHelp">
-            <div id="bundleLabel">
-              <strong>Game folder (APK + OBB)</strong>
-              <span id="bundleHelp">Choose the folder that contains: <b>release.manifest</b> + APK + <b>main.*.obb</b>.</span>
+          <!-- BUNDLE -->
+          <div class="picker" id="bundlePick" role="button" tabindex="0" aria-label="Select game folder option">
+            <div class="pick-top">
+              <div>
+                <p class="pick-title">Game folder</p>
+                <div class="pick-sub">For games that come as a folder (APK + OBB files).</div>
+              </div>
+              <div class="tag" aria-label="Folder selected status">
+                <span class="mini-dot" aria-hidden="true"></span><span>FOLDER</span>
+              </div>
+              <input type="file" id="bundle" webkitdirectory multiple style="display:none">
             </div>
-            <div class="tag" aria-label="Folder selected status"><span class="mini-dot" aria-hidden="true"></span><span>FOLDER</span></div>
-            <input type="file" id="bundle" webkitdirectory multiple style="display:none">
-          </div>
-        </div>
 
-        <div class="callout">
-          <b>What’s a game folder?</b> Some games come with “extra files” (OBB). QuestLoad will place them automatically in
-          <code>/sdcard/Android/obb/&lt;package&gt;/</code>.
+            <div class="fileline">
+              <div class="fname" id="bundleName">No folder selected</div>
+              <div class="fsize" id="bundleSize">—</div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -522,7 +511,7 @@
       <div class="section" id="step3">
         <div class="rowhead">
           <div>
-            <div class="title">3. Install <span class="badge">1 click</span></div>
+            <div class="title">3. Install</div>
             <p class="desc">
               Install is enabled as soon as you select a file. You can still switch choices anytime.
             </p>
@@ -531,165 +520,133 @@
 
         <div class="actions">
           <button id="install" type="button" disabled>Install App (.apk)</button>
-          <button id="installBundle" class="primary" type="button" disabled>Install Game (APK + OBB)</button>
+          <button id="installBundle" class="primary" type="button" disabled>Install Game Folder</button>
         </div>
-      </div>
 
-      <!-- LOGS -->
-      <details open>
-        <summary>
-          <span>Logs</span>
-          <span class="log-actions">
-            <button id="copyLogs" class="mini" type="button">Copy</button>
-            <button id="clearLogs" class="mini" type="button">Clear</button>
-          </span>
-        </summary>
-        <pre id="log"></pre>
-      </details>
+        <details>
+          <summary>
+            <span>Logs</span>
+            <span style="display:flex; gap:8px; align-items:center;">
+              <button id="copyLogs" class="mini" type="button">Copy</button>
+              <button id="clearLogs" class="mini" type="button">Clear</button>
+            </span>
+          </summary>
+          <pre id="log"></pre>
+        </details>
+      </div>
     </div>
 
     <div class="footer">
-      <div>Works best on Chromium browsers (Chrome / Edge). Some browsers block USB access.</div>
+      <div>
+        An <a class="link" href="https://github.com/FrizzleM/QuestLoad/tree/main/quest-web-installer" target="_blank" rel="noopener noreferrer">open source</a> tool. Made by Frizzle.
+      </div>
       <div><a class="link" href="#" id="openHelp">Troubleshooting</a></div>
     </div>
 
     <!-- Keep backend code untouched -->
     <script type="module" src="/src/main.ts"></script>
 
+    <!-- UI-only helpers (no backend changes) -->
     <script>
-      // UI-only helpers (no backend logic changes)
+      (function(){
+        const $ = (id)=>document.getElementById(id);
 
-      // Elements
-      const apkPick = document.getElementById('apkPick');
-      const apkInput = document.getElementById('apk');
-      const apkLabel = document.getElementById('apkLabel');
+        const apkPick = $("apkPick");
+        const bundlePick = $("bundlePick");
+        const apk = $("apk");
+        const bundle = $("bundle");
+        const apkName = $("apkName");
+        const apkSize = $("apkSize");
+        const bundleName = $("bundleName");
+        const bundleSize = $("bundleSize");
 
-      const bundlePick = document.getElementById('bundlePick');
-      const bundleInput = document.getElementById('bundle');
-      const bundleLabel = document.getElementById('bundleLabel');
+        const install = $("install");
+        const installBundle = $("installBundle");
 
-      const installBtn = document.getElementById('install');
-      const installBundleBtn = document.getElementById('installBundle');
+        const copyLogs = $("copyLogs");
+        const clearLogs = $("clearLogs");
+        const log = $("log");
 
-      const logEl = document.getElementById('log');
-      const copyLogsBtn = document.getElementById('copyLogs');
-      const clearLogsBtn = document.getElementById('clearLogs');
-      const openHelp = document.getElementById('openHelp');
-
-      // Helpers
-      const fmtBytes = (bytes) => {
-        if (!Number.isFinite(bytes)) return '';
-        const units = ['B','KB','MB','GB'];
-        let u = 0, n = bytes;
-        while (n >= 1024 && u < units.length - 1){ n /= 1024; u++; }
-        return `${n.toFixed(u === 0 ? 0 : 1)} ${units[u]}`;
-      };
-
-      function updateInstallState(){
-        const hasApk = apkInput.files && apkInput.files.length > 0;
-        const hasBundle = bundleInput.files && bundleInput.files.length > 0;
-
-        installBtn.disabled = !hasApk;
-        installBundleBtn.disabled = !hasBundle;
-
-        apkPick.classList.toggle('is-selected', hasApk);
-        bundlePick.classList.toggle('is-selected', hasBundle);
-      }
-
-      // --- APK picker (click + drag/drop) ---
-      apkPick.addEventListener('click', () => apkInput.click());
-      apkPick.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') apkInput.click(); });
-
-      apkInput.addEventListener('change', () => {
-        const f = apkInput.files && apkInput.files[0];
-        if (f){
-          apkLabel.querySelector('strong').textContent = `App selected: ${f.name}`;
-          apkLabel.querySelector('span').textContent = `${fmtBytes(f.size)} • Ready to install`;
-        } else {
-          apkLabel.querySelector('strong').textContent = 'App (.apk)';
-          apkLabel.querySelector('span').textContent = 'Drop an .apk here, or click to choose. (No folders.)';
+        // Select picker behavior
+        function select(mode){
+          const isApk = mode === "apk";
+          apkPick.classList.toggle("is-selected", isApk);
+          bundlePick.classList.toggle("is-selected", !isApk);
         }
-        updateInstallState();
-      });
 
-      const hlApk = (on) => {
-        apkPick.style.borderColor = on ? 'rgba(124,92,255,.65)' : '';
-        apkPick.style.background = on ? 'rgba(124,92,255,.10)' : '';
-      };
-      ['dragenter','dragover'].forEach(evt => apkPick.addEventListener(evt, (e)=>{ e.preventDefault(); hlApk(true); }));
-      ['dragleave','drop'].forEach(evt => apkPick.addEventListener(evt, (e)=>{ e.preventDefault(); hlApk(false); }));
-
-      apkPick.addEventListener('drop', (e) => {
-        const f = e.dataTransfer.files && e.dataTransfer.files[0];
-        if (!f) return;
-        if (!f.name.toLowerCase().endsWith('.apk')) return alert('Please drop an .apk file');
-        const dt = new DataTransfer();
-        dt.items.add(f);
-        apkInput.files = dt.files;
-        apkInput.dispatchEvent(new Event('change', { bubbles: true }));
-      });
-
-      // --- Bundle folder picker (click only; folder drag/drop is messy) ---
-      bundlePick.addEventListener('click', () => bundleInput.click());
-      bundlePick.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') bundleInput.click(); });
-
-      bundleInput.addEventListener('change', () => {
-        const files = bundleInput.files ? bundleInput.files.length : 0;
-        if (files > 0){
-          bundleLabel.querySelector('strong').textContent = `Game folder selected (${files} files)`;
-          bundleLabel.querySelector('span').textContent = 'Ready to install game data (APK + OBB)';
-        } else {
-          bundleLabel.querySelector('strong').textContent = 'Game folder (APK + OBB)';
-          bundleLabel.querySelector('span').innerHTML = 'Choose the folder that contains: <b>release.manifest</b> + APK + <b>main.*.obb</b>.';
+        function humanBytes(n){
+          if (!Number.isFinite(n)) return "—";
+          const units = ["B","KB","MB","GB"];
+          let u = 0, v = n;
+          while (v >= 1024 && u < units.length - 1){ v /= 1024; u++; }
+          return `${v.toFixed(u === 0 ? 0 : 1)} ${units[u]}`;
         }
-        updateInstallState();
-      });
 
-      // Copy / clear logs (UI only)
-      copyLogsBtn.addEventListener('click', async (e) => {
-        e.stopPropagation();
-        try{
-          await navigator.clipboard.writeText(logEl.textContent || '');
-          copyLogsBtn.textContent = 'Copied';
-          setTimeout(()=> copyLogsBtn.textContent = 'Copy', 900);
-        }catch(e){
-          alert('Clipboard blocked by the browser. Try selecting the text and copying manually.');
+        function setReady(el, ready){
+          el.classList.toggle("is-ready", !!ready);
         }
-      });
 
-      clearLogsBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        logEl.textContent = '';
-      });
+        // Click pickers -> open file chooser
+        apkPick.addEventListener("click", ()=>{ select("apk"); apk.click(); });
+        bundlePick.addEventListener("click", ()=>{ select("bundle"); bundle.click(); });
 
-      // Tiny troubleshooting (no external links)
-      openHelp.addEventListener('click', (e) => {
-        e.preventDefault();
-        alert(
-          [
-            'Troubleshooting:',
-            '• Use Chrome or Edge (USB access is often blocked elsewhere).',
-            '• Re-plug the USB cable and accept the USB debugging prompt in the headset.',
-            '• Make sure Developer Mode is enabled in the Meta Quest mobile app.',
-            '• If installation fails, open Logs and copy them when asking for help.'
-          ].join('\n')
-        );
-      });
+        // Keyboard accessibility
+        apkPick.addEventListener("keydown", (e)=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); apkPick.click(); }});
+        bundlePick.addEventListener("keydown", (e)=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); bundlePick.click(); }});
 
-      // Initial state
-      updateInstallState();
+        // File change handlers
+        apk.addEventListener("change", ()=>{
+          const f = apk.files && apk.files[0];
+          apkName.textContent = f ? f.name : "No file selected";
+          apkSize.textContent = f ? humanBytes(f.size) : "—";
+          setReady(apkPick, !!f);
 
-      // Optional: keep logs scrolled to bottom unless user scrolls up
-      let stickToBottom = true;
-      logEl.addEventListener('scroll', () => {
-        const nearBottom = (logEl.scrollTop + logEl.clientHeight) >= (logEl.scrollHeight - 16);
-        stickToBottom = nearBottom;
-      });
-      const mo = new MutationObserver(() => {
-        if (stickToBottom) logEl.scrollTop = logEl.scrollHeight;
-      });
-      mo.observe(logEl, { childList: true, characterData: true, subtree: true });
+          install.disabled = !f;
+          // If APK selected, keep bundle install disabled unless folder has files
+          if(f) select("apk");
+        });
+
+        bundle.addEventListener("change", ()=>{
+          const files = bundle.files ? Array.from(bundle.files) : [];
+          const count = files.length;
+          const bytes = files.reduce((s,f)=>s+(f.size||0), 0);
+
+          bundleName.textContent = count ? `${count} files selected` : "No folder selected";
+          bundleSize.textContent = count ? humanBytes(bytes) : "—";
+          setReady(bundlePick, count > 0);
+
+          installBundle.disabled = !(count > 0);
+          if(count) select("bundle");
+        });
+
+        // Copy / Clear logs (UI-only)
+        if(copyLogs){
+          copyLogs.addEventListener("click", async (e)=>{
+            e.preventDefault();
+            try{
+              const text = log ? (log.textContent || "") : "";
+              await navigator.clipboard.writeText(text);
+              copyLogs.textContent = "Copied";
+              setTimeout(()=>copyLogs.textContent="Copy", 900);
+            }catch{
+              copyLogs.textContent = "Failed";
+              setTimeout(()=>copyLogs.textContent="Copy", 900);
+            }
+          });
+        }
+
+        if(clearLogs){
+          clearLogs.addEventListener("click", (e)=>{
+            e.preventDefault();
+            if(log) log.textContent = "";
+          });
+        }
+
+        // Default selection
+        select("apk");
+      })();
     </script>
-  </div>
+  </main>
 </body>
 </html>
+```
