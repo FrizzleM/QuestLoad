@@ -1,0 +1,283 @@
+import {
+  requestDevice,
+  connectToDevice,
+  disconnect,
+  getCurrentAdb,
+  pushFileStream,
+  shell
+} from "./adbService";
+
+const logEl = document.getElementById("log") as HTMLPreElement;
+const apkInput = document.getElementById("apk") as HTMLInputElement;
+const bundleInput = document.getElementById("bundle") as HTMLInputElement;
+
+function log(msg: string) {
+  console.log(msg);
+  logEl.textContent += msg + "\n";
+  logEl.scrollTop = logEl.scrollHeight;
+}
+function logErr(e: any) {
+  console.error(e);
+  log(`❌ ${e?.message ?? String(e)}`);
+}
+
+let connected = false;
+
+function ensureConnected() {
+  if (!connected || !getCurrentAdb()) throw new Error("No device connected. Click Connect first.");
+}
+
+function sanitize(name: string): string {
+  return name.replace(/[^a-zA-Z0-9._-]/g, "_");
+}
+
+function basename(p: string): string {
+  const parts = p.replace(/\\/g, "/").split("/");
+  return parts[parts.length - 1] || p;
+}
+
+function normManifestPath(p: string): string {
+  // "./com.example/app.apk" -> "com.example/app.apk"
+  return p.trim().replace(/^\.\/+/, "").replace(/^\/+/, "");
+}
+
+function stripTopFolder(rel: string): string {
+  // "Game title/com.example.apk" -> "com.example.apk"
+  const idx = rel.indexOf("/");
+  return idx >= 0 ? rel.slice(idx + 1) : rel;
+}
+
+function makePercentLogger(prefix: string) {
+  let last = -1;
+  return (sent: number, total: number) => {
+    if (total <= 0) return;
+    const pct = Math.floor((sent / total) * 100);
+    if (pct >= 100 || pct >= last + 5) {
+      last = pct;
+      log(`${prefix}: ${pct}%`);
+    }
+  };
+}
+
+// ---------------- CONNECT / DISCONNECT ----------------
+
+(document.getElementById("connect") as HTMLButtonElement).onclick = async () => {
+  try {
+    log("Connect clicked.");
+
+    const dev = await requestDevice();
+    if (!dev) {
+      log("User cancelled device picker.");
+      return;
+    }
+
+    log(`USB device selected. Serial: ${dev.serial}`);
+    log("Connecting to ADB… (put headset on and accept USB debugging)");
+
+    await connectToDevice(dev, () => {
+      log("Auth pending: accept the prompt inside the headset.");
+    });
+
+    connected = true;
+
+    const model = (await shell(["getprop", "ro.product.model"])).trim();
+    const manufacturer = (await shell(["getprop", "ro.product.manufacturer"])).trim();
+    log(`✅ Connected to ${manufacturer || "Unknown"} ${model || ""}`);
+  } catch (e) {
+    logErr(e);
+  }
+};
+
+(document.getElementById("disconnect") as HTMLButtonElement).onclick = async () => {
+  try {
+    await disconnect();
+    connected = false;
+    log("Disconnected.");
+  } catch (e) {
+    logErr(e);
+  }
+};
+
+// ---------------- APK ONLY INSTALL ----------------
+
+async function installApkFile(apkFile: File) {
+  ensureConnected();
+
+  log(`APK: ${apkFile.name} (${apkFile.size} bytes)`);
+
+  const remoteApk = `/data/local/tmp/${Date.now()}_${sanitize(apkFile.name)}`;
+  log(`Pushing APK → ${remoteApk}`);
+
+  await pushFileStream(remoteApk, apkFile, makePercentLogger("APK push"));
+
+  log("Installing APK (pm install -r) …");
+  const out = await shell(["pm", "install", "-r", remoteApk]);
+  log(`pm output: ${out.trim() || "(no output)"}`);
+
+  log("Cleaning temp APK…");
+  await shell(["rm", "-f", remoteApk]);
+
+  if (out.toLowerCase().includes("success")) {
+    log("✅ APK install success. Quest → Apps → Unknown Sources.");
+  } else {
+    log("⚠️ APK install may have failed (see pm output above).");
+  }
+}
+
+(document.getElementById("install") as HTMLButtonElement).onclick = async () => {
+  try {
+    const apk = apkInput.files?.[0];
+    if (!apk) throw new Error("Pick an APK first.");
+    await installApkFile(apk);
+  } catch (e) {
+    logErr(e);
+  }
+};
+
+// ---------------- BUNDLE (APK + OBB) INSTALL ----------------
+
+type ManifestInfo = {
+  packageName: string;
+  versionCode: string;
+  apkPath: string;
+  obbPaths: string[];
+};
+
+function parseReleaseManifest(text: string): ManifestInfo {
+  const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+
+  // Find the metadata header + row (semicolon-separated)
+  // Example:
+  // Game Name;Release Name;Package Name;Version Code;...
+  // TEST 2;TEST 2 v...;com.greensky.TEST2;8472;...
+  const headerIdx = lines.findIndex(l => l.includes("Package Name") && l.includes("Version Code") && l.includes(";"));
+  if (headerIdx < 0 || headerIdx + 1 >= lines.length) throw new Error("Manifest missing metadata header/row.");
+
+  const header = lines[headerIdx].split(";");
+  const row = lines[headerIdx + 1].split(";");
+
+  const pkgCol = header.findIndex(h => h.trim() === "Package Name");
+  const verCol = header.findIndex(h => h.trim() === "Version Code");
+  if (pkgCol < 0 || verCol < 0) throw new Error("Manifest missing Package Name / Version Code columns.");
+
+  const packageName = (row[pkgCol] || "").trim();
+  const versionCode = (row[verCol] || "").trim();
+  if (!packageName || !versionCode) throw new Error("Manifest has empty packageName/versionCode.");
+
+  // Parse file list section
+  const filelistIdx = lines.findIndex(l => l.toLowerCase() === "#filelist");
+  if (filelistIdx < 0) throw new Error("Manifest missing #filelist section.");
+
+  const apkPaths: string[] = [];
+  const obbPaths: string[] = [];
+
+  for (let i = filelistIdx + 1; i < lines.length; i++) {
+    const l = lines[i];
+    if (!l.includes(";")) continue;
+    // type;name;size  OR  f;./path;123
+    const parts = l.split(";");
+    if (parts.length < 3) continue;
+    const type = parts[0];
+    const name = parts[1];
+    if (type !== "f") continue;
+
+    const p = normManifestPath(name);
+    if (p.toLowerCase().endsWith(".apk")) apkPaths.push(p);
+    if (p.toLowerCase().endsWith(".obb")) obbPaths.push(p);
+  }
+
+  if (!apkPaths.length) throw new Error("Manifest filelist contains no APK.");
+  if (!obbPaths.length) throw new Error("Manifest filelist contains no OBB.");
+
+  // Choose first APK (usually only one)
+  const apkPath = apkPaths[0];
+
+  return { packageName, versionCode, apkPath, obbPaths };
+}
+
+function buildBundleFileMap(files: FileList): Map<string, File> {
+  const map = new Map<string, File>();
+
+  for (const f of Array.from(files)) {
+    // Chrome provides webkitRelativePath like "RootFolder/subpath/file.ext"
+    const rel = (f as any).webkitRelativePath ? String((f as any).webkitRelativePath) : f.name;
+    const stripped = stripTopFolder(rel);
+    map.set(stripped, f);
+  }
+
+  return map;
+}
+
+function findFileByPathOrSuffix(map: Map<string, File>, manifestPath: string): File | null {
+  const direct = map.get(manifestPath);
+  if (direct) return direct;
+
+  // fallback: find by suffix match
+  const want = manifestPath.replace(/\\/g, "/");
+  for (const [k, v] of map.entries()) {
+    const kk = k.replace(/\\/g, "/");
+    if (kk.endsWith(want)) return v;
+  }
+  return null;
+}
+
+async function installBundle(files: FileList) {
+  ensureConnected();
+
+  const map = buildBundleFileMap(files);
+
+  // Find and read release.manifest
+  const manifestFile =
+    map.get("release.manifest")
+    || Array.from(map.entries()).find(([k]) => k.endsWith("/release.manifest") || k.endsWith("release.manifest"))?.[1];
+
+  if (!manifestFile) throw new Error("Bundle folder missing release.manifest");
+
+  log(`Reading manifest: ${manifestFile.name}`);
+  const manifestText = await manifestFile.text();
+  const info = parseReleaseManifest(manifestText);
+
+  log(`Bundle package: ${info.packageName}`);
+  log(`Bundle versionCode: ${info.versionCode}`);
+  log(`Manifest APK path: ${info.apkPath}`);
+  log(`Manifest OBB files: ${info.obbPaths.length}`);
+
+  const apkFile = findFileByPathOrSuffix(map, info.apkPath);
+  if (!apkFile) throw new Error(`Could not locate APK file from manifest: ${info.apkPath}`);
+
+  const obbFiles: { path: string; file: File }[] = [];
+  for (const obbPathRaw of info.obbPaths) {
+    const obbFile = findFileByPathOrSuffix(map, obbPathRaw);
+    if (!obbFile) throw new Error(`Could not locate OBB from manifest: ${obbPathRaw}`);
+    obbFiles.push({ path: obbPathRaw, file: obbFile });
+  }
+
+  // 1) Install APK
+  log("---- Installing APK ----");
+  await installApkFile(apkFile);
+
+  // 2) Push OBB(s)
+  log("---- Installing OBB ----");
+  const obbDir = `/sdcard/Android/obb/${info.packageName}`;
+  log(`Ensuring OBB dir: ${obbDir}`);
+  await shell(["mkdir", "-p", obbDir]);
+
+  for (const { path, file } of obbFiles) {
+    const fileName = basename(path); // keep exact manifest filename (already correct, e.g. main.8472.pkg.obb)
+    const remoteObb = `${obbDir}/${fileName}`;
+    log(`Pushing OBB → ${remoteObb} (${file.size} bytes)`);
+    await pushFileStream(remoteObb, file, makePercentLogger(`OBB ${fileName}`));
+  }
+
+  log("✅ Bundle install completed. Launch the game from Unknown Sources.");
+}
+
+(document.getElementById("installBundle") as HTMLButtonElement).onclick = async () => {
+  try {
+    const files = bundleInput.files;
+    if (!files || files.length === 0) throw new Error("Pick a bundle folder first.");
+    await installBundle(files);
+  } catch (e) {
+    logErr(e);
+  }
+};

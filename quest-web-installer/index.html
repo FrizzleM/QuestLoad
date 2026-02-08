@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QuestLoader</title>
+
+  <style>
+    :root{
+      --bg:#0b1020;
+      --border:rgba(255,255,255,.12);
+      --text:rgba(255,255,255,.92);
+      --muted:rgba(255,255,255,.65);
+      --accent:#7c5cff;
+      --good:#22c55e;
+      --danger:#ef4444;
+      --radius:18px;
+      --shadow:0 20px 60px rgba(0,0,0,.45);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; min-height:100vh;
+      background:
+        radial-gradient(900px 500px at 20% 10%, rgba(124,92,255,.25), transparent 55%),
+        radial-gradient(900px 500px at 80% 20%, rgba(34,197,94,.18), transparent 55%),
+        var(--bg);
+      color:var(--text);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+      display:flex; justify-content:center;
+      padding:28px 16px;
+    }
+    .wrap{width:min(980px,100%)}
+    h1{margin:0 0 6px;font-size:28px}
+    .sub{color:var(--muted);font-size:14px;margin-bottom:18px;line-height:1.35}
+
+    .card{
+      background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.04));
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .section{padding:16px;border-bottom:1px solid rgba(255,255,255,.08)}
+    .section:last-child{border-bottom:none}
+    .title{font-size:15px;font-weight:700;margin-bottom:6px}
+    .desc{font-size:13px;color:var(--muted);line-height:1.35}
+
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+    button{
+      appearance:none;
+      border-radius:12px;
+      padding:10px 14px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.06);
+      color:var(--text);
+      font-weight:700;
+      cursor:pointer;
+      transition:.15s;
+    }
+    button:hover{background:rgba(255,255,255,.1)}
+    .primary{ background:rgba(124,92,255,.2); border-color:rgba(124,92,255,.45); }
+    .danger{ background:rgba(239,68,68,.18); border-color:rgba(239,68,68,.45); }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+    @media (max-width: 820px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+
+    .picker{
+      border:1.5px dashed rgba(255,255,255,.2);
+      background:rgba(255,255,255,.04);
+      border-radius:14px;
+      padding:14px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      cursor:pointer;
+      gap: 10px;
+    }
+    .picker strong{display:block;font-size:13px}
+    .picker span{display:block;font-size:12px;color:var(--muted);margin-top:4px;max-width: 68ch}
+    .tag{
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.18);
+      color: rgba(255,255,255,.75);
+      white-space: nowrap;
+    }
+
+    pre{
+      margin:0;
+      padding:14px;
+      background:rgba(0,0,0,.25);
+      color:#b9ffcf;
+      font-size:12.5px;
+      max-height:320px;
+      overflow:auto;
+      line-height: 1.45;
+    }
+    details summary{
+      padding:12px 16px;
+      cursor:pointer;
+      color:var(--muted);
+      user-select:none;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <h1>Quest Web APK Installer</h1>
+    <div class="sub">
+      Step 1: connect your Quest. Step 2: pick an <b>APK</b> (apps) or a <b>bundle folder</b> (games with OBB). Step 3: install.
+      <br>Chrome/Edge only (WebUSB).
+    </div>
+
+    <div class="card">
+
+      <!-- STEP 1 -->
+      <div class="section">
+        <div class="title">1. Connect your Quest</div>
+        <div class="desc">
+          Plug in headset, enable Developer Mode, then accept the USB debugging prompt in the headset.
+        </div>
+
+        <div class="actions">
+          <button id="connect" class="primary" type="button">Connect Quest</button>
+          <button id="disconnect" class="danger" type="button">Disconnect</button>
+        </div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="section">
+        <div class="title">2. Choose what to install</div>
+        <div class="desc">
+          <b>APK only</b> installs apps. <b>Bundle folder</b> installs games: APK + OBB using the release.manifest metadata.
+        </div>
+
+        <div class="grid">
+          <!-- APK -->
+          <div class="picker" id="apkPick" role="button" tabindex="0">
+            <div id="apkLabel">
+              <strong>Choose an .apk (or drop it here)</strong>
+              <span>Good test: F-Droid APK. App shows in Quest → Apps → Unknown Sources.</span>
+            </div>
+            <div class="tag">APK</div>
+            <input type="file" id="apk" accept=".apk" style="display:none">
+          </div>
+
+          <!-- Bundle folder -->
+          <div class="picker" id="bundlePick" role="button" tabindex="0">
+            <div id="bundleLabel">
+              <strong>Choose a game bundle folder</strong>
+              <span>Must contain: release.manifest + APK + OBB (main.*.obb). Chrome folder picker.</span>
+            </div>
+            <div class="tag">FOLDER</div>
+            <input type="file" id="bundle" webkitdirectory multiple style="display:none">
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3 -->
+      <div class="section">
+        <div class="title">3. Install</div>
+        <div class="desc">
+          APK installs immediately. Bundle installs APK + pushes OBB to <code>/sdcard/Android/obb/&lt;package&gt;/</code>.
+        </div>
+
+        <div class="actions">
+          <button id="install" type="button">Install APK</button>
+          <button id="installBundle" class="primary" type="button">Install Bundle (APK + OBB)</button>
+        </div>
+      </div>
+
+      <!-- LOGS -->
+      <details open>
+        <summary>Logs</summary>
+        <pre id="log"></pre>
+      </details>
+
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+
+    <script>
+      // --- APK picker (click + drag/drop) ---
+      const apkPick = document.getElementById('apkPick');
+      const apkInput = document.getElementById('apk');
+      const apkLabel = document.getElementById('apkLabel');
+
+      apkPick.addEventListener('click', () => apkInput.click());
+      apkPick.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') apkInput.click(); });
+
+      apkInput.addEventListener('change', () => {
+        const f = apkInput.files && apkInput.files[0];
+        if (f) apkLabel.querySelector('strong').textContent = `Selected: ${f.name}`;
+      });
+
+      const hl = (on) => {
+        apkPick.style.borderColor = on ? 'rgba(124,92,255,.65)' : 'rgba(255,255,255,.2)';
+        apkPick.style.background = on ? 'rgba(124,92,255,.10)' : 'rgba(255,255,255,.04)';
+      };
+      ['dragenter','dragover'].forEach(evt => apkPick.addEventListener(evt, (e)=>{ e.preventDefault(); hl(true); }));
+      ['dragleave','drop'].forEach(evt => apkPick.addEventListener(evt, (e)=>{ e.preventDefault(); hl(false); }));
+
+      apkPick.addEventListener('drop', (e) => {
+        const f = e.dataTransfer.files && e.dataTransfer.files[0];
+        if (!f) return;
+        if (!f.name.toLowerCase().endsWith('.apk')) return alert('Drop an .apk file');
+        const dt = new DataTransfer();
+        dt.items.add(f);
+        apkInput.files = dt.files;
+        apkInput.dispatchEvent(new Event('change', { bubbles: true }));
+      });
+
+      // --- Bundle folder picker (click only; folder drag/drop is messy) ---
+      const bundlePick = document.getElementById('bundlePick');
+      const bundleInput = document.getElementById('bundle');
+      const bundleLabel = document.getElementById('bundleLabel');
+
+      bundlePick.addEventListener('click', () => bundleInput.click());
+      bundlePick.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') bundleInput.click(); });
+
+      bundleInput.addEventListener('change', () => {
+        const files = bundleInput.files ? bundleInput.files.length : 0;
+        if (files > 0) bundleLabel.querySelector('strong').textContent = `Selected folder (${files} files)`;
+      });
+    </script>
+  </div>
+</body>
+</html>
