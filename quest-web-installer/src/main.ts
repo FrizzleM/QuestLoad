@@ -29,7 +29,7 @@ function showWebUsbUnsupportedModal() {
         This installer requires <strong>WebUSB</strong>, which is not available in your current browser.
       </p>
       <p>
-        Please open this page in a Chromium-based browser (for example, Chrome, Edge, or Opera)
+        Please open this page in a Chromium-based browser (for example, Chrome, Edge, or Opera) on a computer (Windows, Mac, Linux)
         and try again.
       </p>
     </div>
