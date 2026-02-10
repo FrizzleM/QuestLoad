@@ -95,6 +95,8 @@
       border:1px solid var(--border);
       color:var(--text);
       vertical-align:middle;
+      white-space:nowrap;
+      line-height:1.1;
     }
 
     pre{
@@ -160,7 +162,7 @@
           <!-- Bundle folder -->
           <div class="picker" id="bundlePick" role="button" tabindex="0">
             <div id="bundleLabel">
-              <strong>Choose a game bundle folder<span class="beta-badge">BETA</span></strong>
+              <strong>Choose a game bundle folder</strong> <span class="beta-badge">BETA</span>
               <span>Must contain: release.manifest + APK + OBB (main.*.obb).</span>
             </div>
             <div class="tag">FOLDER</div>
@@ -232,7 +234,7 @@
 
       bundleInput.addEventListener('change', () => {
         const files = bundleInput.files ? bundleInput.files.length : 0;
-        if (files > 0) bundleLabel.querySelector('strong').innerHTML = `Selected folder (${files} files)<span class="beta-badge">BETA</span>`;
+        if (files > 0) bundleLabel.querySelector('strong').textContent = `Selected folder (${files} files)`;
       });
     </script>
   </div>
