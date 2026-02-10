@@ -11,6 +11,86 @@ const logEl = document.getElementById("log") as HTMLPreElement;
 const apkInput = document.getElementById("apk") as HTMLInputElement;
 const bundleInput = document.getElementById("bundle") as HTMLInputElement;
 
+function browserSupportsWebUsb(): boolean {
+  return typeof navigator !== "undefined" && "usb" in navigator;
+}
+
+function showWebUsbUnsupportedModal() {
+  const blocker = document.createElement("div");
+  blocker.id = "webusb-blocker";
+  blocker.setAttribute("role", "dialog");
+  blocker.setAttribute("aria-modal", "true");
+  blocker.setAttribute("aria-labelledby", "webusb-blocker-title");
+
+  blocker.innerHTML = `
+    <div id="webusb-blocker-card">
+      <h2 id="webusb-blocker-title">Browser not supported</h2>
+      <p>
+        This installer requires <strong>WebUSB</strong>, which is not available in your current browser.
+      </p>
+      <p>
+        Please open this page in a Chromium-based browser (for example, Chrome, Edge, or Opera) on a computer (Windows, Mac, Linux)
+        and try again.
+      </p>
+    </div>
+  `;
+
+  const style = document.createElement("style");
+  style.textContent = `
+    #webusb-blocker {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(8px);
+    }
+
+    #webusb-blocker-card {
+      width: min(560px, 100%);
+      border: 1px solid #fff;
+      background: #050505;
+      color: #fff;
+      padding: 24px;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
+    }
+
+    #webusb-blocker-card h2 {
+      margin: 0 0 12px;
+      font-size: 24px;
+      letter-spacing: 0.02em;
+    }
+
+    #webusb-blocker-card p {
+      margin: 0;
+      color: rgba(255, 255, 255, 0.9);
+      line-height: 1.5;
+    }
+
+    #webusb-blocker-card p + p {
+      margin-top: 12px;
+    }
+  `;
+
+  document.head.appendChild(style);
+  document.body.appendChild(blocker);
+
+  const controls = Array.from(document.querySelectorAll("button, input, [role='button']")) as HTMLElement[];
+  for (const control of controls) {
+    control.setAttribute("aria-disabled", "true");
+    if (control instanceof HTMLButtonElement || control instanceof HTMLInputElement) {
+      control.disabled = true;
+    }
+  }
+}
+
+if (!browserSupportsWebUsb()) {
+  showWebUsbUnsupportedModal();
+  throw new Error("WebUSB is not supported in this browser.");
+}
+
 function log(msg: string) {
   console.log(msg);
   logEl.textContent += msg + "\n";
