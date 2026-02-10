@@ -15,6 +15,9 @@
 
 </div>
 
+
+<img width="1030" height="528" alt="Screenshot 2026-02-10 alle 17 50 13" src="https://github.com/user-attachments/assets/b2a618d7-3f28-44a9-8edc-6b8fe8e051fc" />
+
 ---
 
 ## Requirements
