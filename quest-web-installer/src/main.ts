@@ -117,12 +117,10 @@ function basename(p: string): string {
 }
 
 function normManifestPath(p: string): string {
-  // "./com.example/app.apk" -> "com.example/app.apk"
   return p.trim().replace(/^\.\/+/, "").replace(/^\/+/, "");
 }
 
 function stripTopFolder(rel: string): string {
-  // "Game title/com.example.apk" -> "com.example.apk"
   const idx = rel.indexOf("/");
   return idx >= 0 ? rel.slice(idx + 1) : rel;
 }
@@ -138,8 +136,6 @@ function makePercentLogger(prefix: string) {
     }
   };
 }
-
-// ---------------- CONNECT / DISCONNECT ----------------
 
 (document.getElementById("connect") as HTMLButtonElement).onclick = async () => {
   try {
@@ -178,8 +174,6 @@ function makePercentLogger(prefix: string) {
   }
 };
 
-// ---------------- APK ONLY INSTALL ----------------
-
 async function installApkFile(apkFile: File) {
   ensureConnected();
 
@@ -214,8 +208,6 @@ async function installApkFile(apkFile: File) {
   }
 };
 
-// ---------------- BUNDLE (APK + OBB) INSTALL ----------------
-
 type ManifestInfo = {
   packageName: string;
   versionCode: string;
@@ -226,10 +218,6 @@ type ManifestInfo = {
 function parseReleaseManifest(text: string): ManifestInfo {
   const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
 
-  // Find the metadata header + row (semicolon-separated)
-  // Example:
-  // Game Name;Release Name;Package Name;Version Code;...
-  // TEST 2;TEST 2 v...;com.greensky.TEST2;8472;...
   const headerIdx = lines.findIndex(l => l.includes("Package Name") && l.includes("Version Code") && l.includes(";"));
   if (headerIdx < 0 || headerIdx + 1 >= lines.length) throw new Error("Manifest missing metadata header/row.");
 
@@ -244,7 +232,6 @@ function parseReleaseManifest(text: string): ManifestInfo {
   const versionCode = (row[verCol] || "").trim();
   if (!packageName || !versionCode) throw new Error("Manifest has empty packageName/versionCode.");
 
-  // Parse file list section
   const filelistIdx = lines.findIndex(l => l.toLowerCase() === "#filelist");
   if (filelistIdx < 0) throw new Error("Manifest missing #filelist section.");
 
@@ -254,7 +241,6 @@ function parseReleaseManifest(text: string): ManifestInfo {
   for (let i = filelistIdx + 1; i < lines.length; i++) {
     const l = lines[i];
     if (!l.includes(";")) continue;
-    // type;name;size  OR  f;./path;123
     const parts = l.split(";");
     if (parts.length < 3) continue;
     const type = parts[0];
@@ -269,7 +255,6 @@ function parseReleaseManifest(text: string): ManifestInfo {
   if (!apkPaths.length) throw new Error("Manifest filelist contains no APK.");
   if (!obbPaths.length) throw new Error("Manifest filelist contains no OBB.");
 
-  // Choose first APK (usually only one)
   const apkPath = apkPaths[0];
 
   return { packageName, versionCode, apkPath, obbPaths };
@@ -279,7 +264,6 @@ function buildBundleFileMap(files: FileList): Map<string, File> {
   const map = new Map<string, File>();
 
   for (const f of Array.from(files)) {
-    // Chrome provides webkitRelativePath like "RootFolder/subpath/file.ext"
     const rel = (f as any).webkitRelativePath ? String((f as any).webkitRelativePath) : f.name;
     const stripped = stripTopFolder(rel);
     map.set(stripped, f);
@@ -292,7 +276,6 @@ function findFileByPathOrSuffix(map: Map<string, File>, manifestPath: string): F
   const direct = map.get(manifestPath);
   if (direct) return direct;
 
-  // fallback: find by suffix match
   const want = manifestPath.replace(/\\/g, "/");
   for (const [k, v] of map.entries()) {
     const kk = k.replace(/\\/g, "/");
@@ -306,7 +289,6 @@ async function installBundle(files: FileList) {
 
   const map = buildBundleFileMap(files);
 
-  // Find and read release.manifest
   const manifestFile =
     map.get("release.manifest")
     || Array.from(map.entries()).find(([k]) => k.endsWith("/release.manifest") || k.endsWith("release.manifest"))?.[1];
@@ -332,18 +314,16 @@ async function installBundle(files: FileList) {
     obbFiles.push({ path: obbPathRaw, file: obbFile });
   }
 
-  // 1) Install APK
   log("---- Installing APK ----");
   await installApkFile(apkFile);
 
-  // 2) Push OBB(s)
   log("---- Installing OBB ----");
   const obbDir = `/sdcard/Android/obb/${info.packageName}`;
   log(`Ensuring OBB dir: ${obbDir}`);
   await shell(["mkdir", "-p", obbDir]);
 
   for (const { path, file } of obbFiles) {
-    const fileName = basename(path); // keep exact manifest filename (already correct, e.g. main.8472.pkg.obb)
+    const fileName = basename(path);
     const remoteObb = `${obbDir}/${fileName}`;
     log(`Pushing OBB → ${remoteObb} (${file.size} bytes)`);
     await pushFileStream(remoteObb, file, makePercentLogger(`OBB ${fileName}`));

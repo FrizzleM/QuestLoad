@@ -113,7 +113,6 @@
 
     <div class="card">
 
-      <!-- STEP 1 -->
       <div class="section">
         <div class="title">1. Connect your Quest</div>
         <div class="actions">
@@ -122,11 +121,9 @@
         </div>
       </div>
 
-      <!-- STEP 2 -->
       <div class="section">
         <div class="title">2. Choose what to install</div>
         <div class="grid">
-          <!-- APK -->
           <div class="picker" id="apkPick" role="button" tabindex="0">
             <div id="apkLabel">
               <strong>Choose an .apk (or drop it here)</strong>
@@ -136,7 +133,6 @@
             <input type="file" id="apk" accept=".apk" style="display:none">
           </div>
 
-          <!-- Bundle folder -->
           <div class="picker" id="bundlePick" role="button" tabindex="0">
             <div id="bundleLabel">
               <strong>Choose a game bundle folder (BETA)</strong>
@@ -148,7 +144,6 @@
         </div>
       </div>
 
-      <!-- STEP 3 -->
       <div class="section">
         <div class="title">3. Install</div>
         <div class="actions">
@@ -157,7 +152,6 @@
         </div>
       </div>
 
-      <!-- LOGS -->
       <details open>
         <summary>Logs</summary>
         <pre id="log"></pre>
@@ -168,7 +162,6 @@
     <script type="module" src="/src/main.ts"></script>
 
     <script>
-      // --- APK picker (click + drag/drop) ---
       const apkPick = document.getElementById('apkPick');
       const apkInput = document.getElementById('apk');
       const apkLabel = document.getElementById('apkLabel');
@@ -197,7 +190,6 @@
         apkInput.dispatchEvent(new Event('change', { bubbles: true }));
       });
 
-      // --- Bundle folder picker (click only; folder drag/drop is messy) ---
       const bundlePick = document.getElementById('bundlePick');
       const bundleInput = document.getElementById('bundle');
       const bundleLabel = document.getElementById('bundleLabel');
