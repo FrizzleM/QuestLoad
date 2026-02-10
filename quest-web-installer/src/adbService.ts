@@ -29,7 +29,7 @@ export async function requestDevice(): Promise<AdbDaemonWebUsbDevice | null> {
     const device = await manager.requestDevice();
     return device ?? null;
   } catch (e: any) {
-    if (e instanceof DOMException && e.name === "NotFoundError") return null; // user cancelled picker
+    if (e instanceof DOMException && e.name === "NotFoundError") return null;
     throw e;
   }
 }
@@ -56,7 +56,7 @@ export async function disconnect(): Promise<void> {
   currentAdb = null;
   currentDevice = null;
   if (adb) {
-    try { await adb.close(); } catch { /* ignore */ }
+    try { await adb.close(); } catch {}
   }
 }
 
@@ -75,9 +75,6 @@ export async function shell(argv: string[]): Promise<string> {
   }
 }
 
-/**
- * Stream-push a File to the device (works for huge OBBs without RAM blowups).
- */
 export async function pushFileStream(
   remotePath: string,
   file: File,
