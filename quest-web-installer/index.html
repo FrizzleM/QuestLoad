@@ -36,6 +36,14 @@
     }
     .section{padding:16px;border-bottom:1px solid var(--border)}
     .section:last-child{border-bottom:none}
+    .step-section{opacity:1;transform:translateY(0)}
+    .step-section.is-leaving{opacity:0;transform:translateY(8px);transition:opacity .22s ease,transform .22s ease}
+    .step-section.is-hidden{display:none}
+    .step-section.is-entering{animation:stepFadeIn .24s ease}
+    @keyframes stepFadeIn {
+      from { opacity:0; transform:translateY(8px); }
+      to { opacity:1; transform:translateY(0); }
+    }
     .title{font-size:15px;font-weight:700;margin-bottom:0}
     .section--disabled{opacity:.65}
     .section--disabled .title{color:rgba(255,255,255,.55)}
@@ -145,16 +153,16 @@
 
     <div class="card">
 
-      <div class="section">
-        <div class="title">Connect your Quest</div>
+      <div class="section step-section" id="connectStepSection" data-step="1">
+        <div class="title">1. Connect your Quest</div>
         <div class="actions">
           <button id="connect" type="button">Connect Quest</button>
           <button id="disconnect" type="button">Disconnect</button>
         </div>
       </div>
 
-      <div class="section section--disabled" id="installStepSection">
-        <div class="title">Choose what to install</div>
+      <div class="section section--disabled step-section is-hidden" id="installStepSection" data-step="2">
+        <div class="title">2. Choose what to install</div>
         <div class="grid">
           <div class="picker" id="apkPick" role="button" tabindex="0">
             <div id="apkLabel">
@@ -176,8 +184,8 @@
         </div>
       </div>
 
-      <div class="section section--disabled" id="installActionsSection">
-        <div class="title">Install</div>
+      <div class="section section--disabled step-section is-hidden" id="installActionsSection" data-step="3">
+        <div class="title">3. Install</div>
         <div class="actions">
           <button id="install" type="button">Install APK</button>
           <button id="installBundle" type="button">Install Bundle (APK + OBB)</button>
