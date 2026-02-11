@@ -37,6 +37,7 @@
     .section{padding:16px;border-bottom:1px solid var(--border)}
     .section:last-child{border-bottom:none}
     .title{font-size:15px;font-weight:700;margin-bottom:0}
+    .section--disabled .title{color:rgba(255,255,255,.55)}
     .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
     button{
       appearance:none;
@@ -72,6 +73,12 @@
       cursor:pointer;
       gap: 10px;
     }
+    .section--disabled .picker{
+      cursor: not-allowed;
+      border-color: rgba(255,255,255,.65);
+      color: rgba(255,255,255,.75);
+    }
+    .section--disabled .picker:hover{background:transparent}
     .picker strong{display:block;font-size:13px}
     .picker span{display:block;font-size:12px;color:var(--muted);margin-top:4px;max-width: 68ch}
     .tag{
@@ -121,7 +128,7 @@
         </div>
       </div>
 
-      <div class="section">
+      <div class="section section--disabled" id="installStepSection">
         <div class="title">2. Choose what to install</div>
         <div class="grid">
           <div class="picker" id="apkPick" role="button" tabindex="0">
@@ -162,12 +169,19 @@
     <script type="module" src="/src/main.ts"></script>
 
     <script>
+      const isQuestConnected = () => document.body.dataset.questConnected === 'true';
       const apkPick = document.getElementById('apkPick');
       const apkInput = document.getElementById('apk');
       const apkLabel = document.getElementById('apkLabel');
 
-      apkPick.addEventListener('click', () => apkInput.click());
-      apkPick.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') apkInput.click(); });
+      apkPick.addEventListener('click', () => {
+        if (!isQuestConnected()) return;
+        apkInput.click();
+      });
+      apkPick.addEventListener('keydown', (e) => {
+        if (!isQuestConnected()) return;
+        if (e.key === 'Enter' || e.key === ' ') apkInput.click();
+      });
 
       apkInput.addEventListener('change', () => {
         const f = apkInput.files && apkInput.files[0];
@@ -194,8 +208,14 @@
       const bundleInput = document.getElementById('bundle');
       const bundleLabel = document.getElementById('bundleLabel');
 
-      bundlePick.addEventListener('click', () => bundleInput.click());
-      bundlePick.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') bundleInput.click(); });
+      bundlePick.addEventListener('click', () => {
+        if (!isQuestConnected()) return;
+        bundleInput.click();
+      });
+      bundlePick.addEventListener('keydown', (e) => {
+        if (!isQuestConnected()) return;
+        if (e.key === 'Enter' || e.key === ' ') bundleInput.click();
+      });
 
       bundleInput.addEventListener('change', () => {
         const files = bundleInput.files ? bundleInput.files.length : 0;
