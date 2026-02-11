@@ -105,14 +105,36 @@ function logErr(e: any) {
 
 let connected = false;
 
+function hasInstallSelection() {
+  const hasApk = Boolean(apkInput.files?.length);
+  const hasBundle = Boolean(bundleInput.files?.length);
+  return hasApk || hasBundle;
+}
+
 function syncConnectionUi() {
   document.body.dataset.questConnected = connected ? "true" : "false";
 
   const installStepSection = document.getElementById("installStepSection");
-  if (!installStepSection) return;
+  const installActionsSection = document.getElementById("installActionsSection");
+  const installButton = document.getElementById("install") as HTMLButtonElement | null;
+  const installBundleButton = document.getElementById("installBundle") as HTMLButtonElement | null;
 
-  installStepSection.classList.toggle("section--disabled", !connected);
+  if (installStepSection) {
+    installStepSection.classList.toggle("section--disabled", !connected);
+  }
+
+  const readyToInstall = connected && hasInstallSelection();
+
+  if (installActionsSection) {
+    installActionsSection.classList.toggle("section--disabled", !readyToInstall);
+  }
+
+  if (installButton) installButton.disabled = !readyToInstall;
+  if (installBundleButton) installBundleButton.disabled = !readyToInstall;
 }
+
+apkInput.addEventListener("change", syncConnectionUi);
+bundleInput.addEventListener("change", syncConnectionUi);
 
 syncConnectionUi();
 
