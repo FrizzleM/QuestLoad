@@ -7,7 +7,10 @@ import {
   shell
 } from "./adbService";
 
-const logEl = document.getElementById("log") as HTMLPreElement;
+const latestLogEl = document.getElementById("latestLog") as HTMLDivElement;
+const progressPercentEl = document.getElementById("progressPercent") as HTMLSpanElement;
+const progressFillEl = document.getElementById("progressFill") as HTMLDivElement;
+const progressTrackEl = progressFillEl.parentElement as HTMLDivElement;
 const apkInput = document.getElementById("apk") as HTMLInputElement;
 const bundleInput = document.getElementById("bundle") as HTMLInputElement;
 
@@ -93,8 +96,7 @@ if (!browserSupportsWebUsb()) {
 
 function log(msg: string) {
   console.log(msg);
-  logEl.textContent += msg + "\n";
-  logEl.scrollTop = logEl.scrollHeight;
+  latestLogEl.textContent = msg;
 }
 function logErr(e: any) {
   console.error(e);
@@ -138,14 +140,28 @@ function stripTopFolder(rel: string): string {
 
 function makePercentLogger(prefix: string) {
   let last = -1;
-  return (sent: number, total: number) => {
+  return (sent: number, total: number, onProgress?: (fraction: number) => void) => {
     if (total <= 0) return;
-    const pct = Math.floor((sent / total) * 100);
+    const fraction = Math.min(Math.max(sent / total, 0), 1);
+    onProgress?.(fraction);
+    const pct = Math.floor(fraction * 100);
     if (pct >= 100 || pct >= last + 5) {
       last = pct;
       log(`${prefix}: ${pct}%`);
     }
   };
+}
+
+function setProgress(pct: number) {
+  const clamped = Math.min(100, Math.max(0, Math.round(pct)));
+  progressFillEl.style.width = `${clamped}%`;
+  progressPercentEl.textContent = `${clamped}%`;
+  progressTrackEl.setAttribute("aria-valuenow", String(clamped));
+}
+
+function mapProgressRange(start: number, end: number) {
+  const span = end - start;
+  return (fraction: number) => setProgress(start + span * fraction);
 }
 
 (document.getElementById("connect") as HTMLButtonElement).onclick = async () => {
@@ -187,21 +203,29 @@ function makePercentLogger(prefix: string) {
   }
 };
 
-async function installApkFile(apkFile: File) {
+async function installApkFile(apkFile: File, progressRange: { start: number; end: number } = { start: 0, end: 100 }) {
   ensureConnected();
+  const pushProgress = mapProgressRange(progressRange.start + 10, progressRange.start + 70);
+  const setLocalProgress = mapProgressRange(progressRange.start, progressRange.end);
+
+  setLocalProgress(0);
 
   log(`APK: ${apkFile.name} (${apkFile.size} bytes)`);
 
   const remoteApk = `/data/local/tmp/${Date.now()}_${sanitize(apkFile.name)}`;
   log(`Pushing APK → ${remoteApk}`);
+  setLocalProgress(0.1);
 
-  await pushFileStream(remoteApk, apkFile, makePercentLogger("APK push"));
+  const apkPushLogger = makePercentLogger("APK push");
+  await pushFileStream(remoteApk, apkFile, (sent, total) => apkPushLogger(sent, total, pushProgress));
 
   log("Installing APK (pm install -r) …");
+  setLocalProgress(0.85);
   const out = await shell(["pm", "install", "-r", remoteApk]);
   log(`pm output: ${out.trim() || "(no output)"}`);
 
   log("Cleaning temp APK…");
+  setLocalProgress(0.95);
   await shell(["rm", "-f", remoteApk]);
 
   if (out.toLowerCase().includes("success")) {
@@ -209,6 +233,8 @@ async function installApkFile(apkFile: File) {
   } else {
     log("⚠️ APK install may have failed (see pm output above).");
   }
+
+  setLocalProgress(1);
 }
 
 (document.getElementById("install") as HTMLButtonElement).onclick = async () => {
@@ -299,6 +325,7 @@ function findFileByPathOrSuffix(map: Map<string, File>, manifestPath: string): F
 
 async function installBundle(files: FileList) {
   ensureConnected();
+  setProgress(0);
 
   const map = buildBundleFileMap(files);
 
@@ -309,8 +336,10 @@ async function installBundle(files: FileList) {
   if (!manifestFile) throw new Error("Bundle folder missing release.manifest");
 
   log(`Reading manifest: ${manifestFile.name}`);
+  setProgress(5);
   const manifestText = await manifestFile.text();
   const info = parseReleaseManifest(manifestText);
+  setProgress(10);
 
   log(`Bundle package: ${info.packageName}`);
   log(`Bundle versionCode: ${info.versionCode}`);
@@ -328,21 +357,36 @@ async function installBundle(files: FileList) {
   }
 
   log("---- Installing APK ----");
-  await installApkFile(apkFile);
+  await installApkFile(apkFile, { start: 10, end: 60 });
 
   log("---- Installing OBB ----");
   const obbDir = `/sdcard/Android/obb/${info.packageName}`;
   log(`Ensuring OBB dir: ${obbDir}`);
+  setProgress(65);
   await shell(["mkdir", "-p", obbDir]);
+
+  let obbBytesDone = 0;
+  const totalObbBytes = obbFiles.reduce((sum, obb) => sum + obb.file.size, 0);
+  const obbRange = mapProgressRange(70, 98);
 
   for (const { path, file } of obbFiles) {
     const fileName = basename(path);
     const remoteObb = `${obbDir}/${fileName}`;
     log(`Pushing OBB → ${remoteObb} (${file.size} bytes)`);
-    await pushFileStream(remoteObb, file, makePercentLogger(`OBB ${fileName}`));
+
+    const obbPushLogger = makePercentLogger(`OBB ${fileName}`);
+    await pushFileStream(remoteObb, file, (sent, total) => {
+      obbPushLogger(sent, total);
+      if (totalObbBytes > 0) {
+        const overallFraction = Math.min((obbBytesDone + sent) / totalObbBytes, 1);
+        obbRange(overallFraction);
+      }
+    });
+    obbBytesDone += file.size;
   }
 
   log("✅ Bundle install completed. Launch the game from Unknown Sources.");
+  setProgress(100);
 }
 
 (document.getElementById("installBundle") as HTMLButtonElement).onclick = async () => {
