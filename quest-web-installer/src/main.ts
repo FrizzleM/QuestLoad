@@ -103,6 +103,17 @@ function logErr(e: any) {
 
 let connected = false;
 
+function syncConnectionUi() {
+  document.body.dataset.questConnected = connected ? "true" : "false";
+
+  const installStepSection = document.getElementById("installStepSection");
+  if (!installStepSection) return;
+
+  installStepSection.classList.toggle("section--disabled", !connected);
+}
+
+syncConnectionUi();
+
 function ensureConnected() {
   if (!connected || !getCurrentAdb()) throw new Error("No device connected. Click Connect first.");
 }
@@ -155,6 +166,7 @@ function makePercentLogger(prefix: string) {
     });
 
     connected = true;
+    syncConnectionUi();
 
     const model = (await shell(["getprop", "ro.product.model"])).trim();
     const manufacturer = (await shell(["getprop", "ro.product.manufacturer"])).trim();
@@ -168,6 +180,7 @@ function makePercentLogger(prefix: string) {
   try {
     await disconnect();
     connected = false;
+    syncConnectionUi();
     log("Disconnected.");
   } catch (e) {
     logErr(e);
