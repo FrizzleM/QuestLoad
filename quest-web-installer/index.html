@@ -79,6 +79,12 @@
       color: rgba(255,255,255,.75);
     }
     .section--disabled .picker:hover{background:transparent}
+    .section--disabled button{
+      cursor:not-allowed;
+      color:rgba(255,255,255,.65);
+      border-color:rgba(255,255,255,.65);
+    }
+    .section--disabled button:hover{background:transparent}
     .picker strong{display:block;font-size:13px}
     .picker span{display:block;font-size:12px;color:var(--muted);margin-top:4px;max-width: 68ch}
     .tag{
@@ -166,7 +172,7 @@
         </div>
       </div>
 
-      <div class="section">
+      <div class="section section--disabled" id="installActionsSection">
         <div class="title">3. Install</div>
         <div class="actions">
           <button id="install" type="button">Install APK</button>
