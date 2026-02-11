@@ -13,6 +13,14 @@ const progressFillEl = document.getElementById("progressFill") as HTMLDivElement
 const progressTrackEl = progressFillEl.parentElement as HTMLDivElement;
 const apkInput = document.getElementById("apk") as HTMLInputElement;
 const bundleInput = document.getElementById("bundle") as HTMLInputElement;
+const stepSections = {
+  1: document.getElementById("connectStepSection") as HTMLDivElement,
+  2: document.getElementById("installStepSection") as HTMLDivElement,
+  3: document.getElementById("installActionsSection") as HTMLDivElement
+};
+
+let activeStep = 1;
+let stepTransitionTimeout: number | null = null;
 
 function browserSupportsWebUsb(): boolean {
   return typeof navigator !== "undefined" && "usb" in navigator;
@@ -131,6 +139,42 @@ function syncConnectionUi() {
 
   if (installButton) installButton.disabled = !readyToInstall;
   if (installBundleButton) installBundleButton.disabled = !readyToInstall;
+
+  const targetStep = !connected ? 1 : readyToInstall ? 3 : 2;
+  setVisibleStep(targetStep);
+}
+
+function setVisibleStep(step: 1 | 2 | 3) {
+  if (activeStep === step) return;
+
+  const currentSection = stepSections[activeStep as 1 | 2 | 3];
+  const nextSection = stepSections[step];
+  if (!currentSection || !nextSection) {
+    activeStep = step;
+    return;
+  }
+
+  if (stepTransitionTimeout) {
+    window.clearTimeout(stepTransitionTimeout);
+    stepTransitionTimeout = null;
+  }
+
+  currentSection.classList.add("is-leaving");
+
+  stepTransitionTimeout = window.setTimeout(() => {
+    currentSection.classList.remove("is-leaving");
+    currentSection.classList.add("is-hidden");
+
+    nextSection.classList.remove("is-hidden");
+    nextSection.classList.add("is-entering");
+
+    window.setTimeout(() => {
+      nextSection.classList.remove("is-entering");
+    }, 240);
+
+    activeStep = step;
+    stepTransitionTimeout = null;
+  }, 220);
 }
 
 apkInput.addEventListener("change", syncConnectionUi);
