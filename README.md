@@ -6,7 +6,7 @@
 
 <br/>
   <a href="https://frizzlem.github.io/QuestLoad/">
-    <img alt="Launch QuestLoad" src="https://img.shields.io/badge/Launch-Open%20App-6cb6ff?style=for-the-badge">
+    <img alt="Launch QuestLoad" src="https://img.shields.io/badge/Try%20it-Launch-6cb6ff?style=for-the-badge">
   </a>
 
   <a href="https://github.com/FrizzleM/QuestLoad/issues">
