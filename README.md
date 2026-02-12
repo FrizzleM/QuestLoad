@@ -44,7 +44,7 @@ In Step 2, choose an **APK** file or a **bundle folder**:
 - **Bundle (BETA)** – click the “Choose a game bundle folder (BETA)” box and select a folder containing a `release.manifest`, the app’s APK, and any OBB files (`main.*.obb`).
 
 ### 4. Install
-Click **Install APK** for single APKs or **Install Bundle (APK + OBB)** for bundles. The log will show progress and confirm success when finished:contentReference[oaicite:14]{index=14}.
+Click **Install APK** for single APKs or **Install Bundle (APK + OBB)** for bundles. The log will show progress and confirm success when finished.
 
 ### 5. Launch the app on your Quest
 After a successful install, go to **Apps → Unknown Sources** on your headset and launch your newly installed app. Once done, you can click **Disconnect** in QuestLoad.
@@ -57,8 +57,8 @@ The web installer is built with **Vite**. To run it locally:
 
 ```bash
 git clone https://github.com/FrizzleM/QuestLoad.git
-cd quest-web-installer
+cd QuestLoad
 npm install
-npm run dev      # start development server
-npm run build    # build for production
-npm run preview  # preview built app
+npm run dev 
+npm run build    
+npm run preview 
