@@ -51,7 +51,7 @@ After a successful install, go to **Apps → Unknown Sources** on your headset a
 
 ---
 
-## Development
+## For offline usage
 
 The web installer is built with **Vite**. To run it locally:
 
