@@ -53,12 +53,20 @@ After a successful install, go to **Apps → Unknown Sources** on your headset a
 
 ## For offline usage
 
-The web installer is built with **Vite**. To run it locally:
+The web installer lives in `quest-web-installer/` and is built with **Vite**. From the repository root, run:
 
 ```bash
 git clone https://github.com/FrizzleM/QuestLoad.git
 cd QuestLoad
+cd quest-web-installer
 npm install
-npm run dev 
-npm run build    
-npm run preview 
+npm run dev
+```
+
+To create a production build locally:
+
+```bash
+cd quest-web-installer
+npm run build
+npm run preview
+```
