@@ -42,8 +42,8 @@ const apkInput = document.getElementById("apk") as HTMLInputElement;
 const bundleInput = document.getElementById("bundle") as HTMLInputElement;
 const apkPickEl = document.getElementById("apkPick") as HTMLDivElement;
 const bundlePickEl = document.getElementById("bundlePick") as HTMLDivElement;
-const apkLabelEl = document.getElementById("apkLabel") as HTMLStrongElement;
-const bundleLabelEl = document.getElementById("bundleLabel") as HTMLStrongElement;
+const apkLabelEl = document.getElementById("apkLabel") as HTMLElement;
+const bundleLabelEl = document.getElementById("bundleLabel") as HTMLElement;
 const bundleHintEl = document.getElementById("bundleHint") as HTMLSpanElement;
 const bundleQueueEl = document.getElementById("bundleQueue") as HTMLDivElement;
 const bundleQueueEmptyEl = document.getElementById("bundleQueueEmpty") as HTMLDivElement;
@@ -65,11 +65,11 @@ let bundleQueue: BundleQueueItem[] = [];
 let nextQueueItemId = 1;
 
 function browserSupportsWebUsb(): boolean {
-  return typeof navigator !== "undefined" && "usb" in navigator;
+  return typeof (navigator as any) !== "undefined" && "usb" in (navigator as any);
 }
 
 if (browserSupportsWebUsb()) {
-  navigator.usb.addEventListener("disconnect", async () => {
+  (navigator as any).usb.addEventListener("disconnect", async () => {
     log("⚠️ USB Disconnected.");
     await disconnect();
     connected = false;
@@ -528,7 +528,9 @@ async function installBundleItem(item: BundleQueueItem, index: number, totalItem
 
   for (let obbIndex = 0; obbIndex < item.obbFiles.length; obbIndex += 1) {
     const obb = item.obbFiles[obbIndex];
-    const remotePath = `${remoteDir}/${basename(obb.path)}`;
+    const versionCode = Math.floor(obb.file.size / 1024);
+    const obbName = `main.${versionCode}.${item.packageName}.obb`;
+    const remotePath = `${remoteDir}/${obbName}`;
     const obbStart = 0.65 + (obbIndex / item.obbFiles.length) * 0.35;
     const obbEnd = 0.65 + ((obbIndex + 1) / item.obbFiles.length) * 0.35;
 
@@ -539,6 +541,8 @@ async function installBundleItem(item: BundleQueueItem, index: number, totalItem
       const fraction = total > 0 ? sent / total : 1;
       itemProgress(obbStart + (obbEnd - obbStart) * fraction);
     });
+    await shell(["chmod", "644", remotePath]);
+    log(`✅ Pushed OBB to ${remotePath}`);
   }
 
   itemProgress(1);
