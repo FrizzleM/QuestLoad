@@ -118,28 +118,9 @@
       display: flex; justify-content: space-between; align-items: center;
       cursor: pointer; gap: 10px;
     }
-    .picker-stack { display: flex; flex-direction: column; gap: 10px; }
-    .picker--disabled { opacity: .6; cursor: not-allowed; }
     .picker strong { display: block; font-size: 13px; }
     .picker span { display: block; font-size: 12px; color: var(--muted); margin-top: 4px; }
     .tag { font-size: 11px; padding: 4px 8px; border: 1px solid var(--border); white-space: nowrap; }
-    .queue-actions { display: flex; gap: 10px; flex-wrap: wrap; }
-    .queue-list { border: 1px solid var(--border); min-height: 144px; }
-    .queue-empty { padding: 14px; font-size: 12px; color: var(--muted); }
-    .queue-item { padding: 14px; border-bottom: 1px solid rgba(255, 255, 255, .12); display: grid; gap: 10px; }
-    .queue-item:last-child { border-bottom: none; }
-    .queue-item__head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
-    .queue-item__title { font-size: 13px; font-weight: 700; word-break: break-word; }
-    .queue-item__meta,
-    .queue-item__detail { font-size: 12px; color: var(--muted); }
-    .queue-item__error { font-size: 12px; word-break: break-word; }
-    .queue-item__actions { display: flex; justify-content: flex-end; }
-    .status-badge {
-      font-size: 11px;
-      padding: 4px 8px;
-      border: 1px solid var(--border);
-      white-space: nowrap;
-    }
     .progress-wrap { border-top: 1px solid var(--border); padding: 16px; display: flex; flex-direction: column; gap: 10px; }
     .progress-head { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); }
     .progress-track { width: 100%; height: 12px; border: 1px solid var(--border); }
@@ -230,22 +211,10 @@
                   <div class="tag">APK</div>
                   <input type="file" id="apk" accept=".apk" style="display:none">
                 </div>
-                <div class="picker-stack">
-                  <div class="picker" id="bundlePick">
-                    <div>
-                      <strong id="bundleLabel">Add App Folder</strong>
-                      <span id="bundleHint">Queue folders with one APK + OBB package</span>
-                    </div>
-                    <div class="tag">QUEUE</div>
-                    <input type="file" id="bundle" webkitdirectory multiple style="display:none">
-                  </div>
-                  <div class="queue-actions">
-                    <button type="button" id="addBundle">Add Folder</button>
-                    <button type="button" id="clearBundleQueue">Clear Queue</button>
-                  </div>
-                  <div class="queue-list" id="bundleQueue" aria-live="polite" aria-busy="false">
-                    <div class="queue-empty" id="bundleQueueEmpty">No app folders queued.</div>
-                  </div>
+                <div class="picker" id="bundlePick">
+                  <div><strong id="bundleLabel">Select Bundle</strong><span>Folder with APK + OBB</span></div>
+                  <div class="tag">FOLDER</div>
+                  <input type="file" id="bundle" webkitdirectory multiple style="display:none">
                 </div>
               </div>
             </div>
@@ -253,7 +222,7 @@
               <div class="title">3. Execution</div>
               <div class="actions">
                 <button id="install">Install APK</button>
-                <button id="installBundle">Install Queue</button>
+                <button id="installBundle">Install Bundle</button>
               </div>
             </div>
             <div class="progress-wrap">
@@ -272,30 +241,26 @@
   <script type="module" src="/src/main.ts"></script>
   <script>
     const isConn = () => document.body.dataset.questConnected === 'true';
-    const isBusy = () => document.body.dataset.questBusy === 'true';
     const apkInput = document.getElementById('apk');
     const bundleInput = document.getElementById('bundle');
-    const apkPick = document.getElementById('apkPick');
-    const bundlePick = document.getElementById('bundlePick');
-    const addBundleButton = document.getElementById('addBundle');
 
-    const openApkPicker = () => isConn() && !isBusy() && !apkInput.disabled && apkInput.click();
-    const openBundlePicker = () => isConn() && !isBusy() && !bundleInput.disabled && bundleInput.click();
-
-    apkPick.onclick = openApkPicker;
-    bundlePick.onclick = openBundlePicker;
-    addBundleButton.onclick = openBundlePicker;
+    document.getElementById('apkPick').onclick = () => isConn() && apkInput.click();
+    document.getElementById('bundlePick').onclick = () => isConn() && bundleInput.click();
 
     apkInput.onchange = () => {
       if(apkInput.files[0]) document.getElementById('apkLabel').textContent = apkInput.files[0].name;
     };
+    bundleInput.onchange = () => {
+      if(bundleInput.files.length) document.getElementById('bundleLabel').textContent = `Folder: ${bundleInput.files.length} files`;
+    };
 
+    const apkPick = document.getElementById('apkPick');
     apkPick.ondragover = (e) => { e.preventDefault(); apkPick.style.background = 'rgba(255,255,255,0.1)'; };
     apkPick.ondragleave = () => { apkPick.style.background = 'transparent'; };
     apkPick.ondrop = (e) => {
       e.preventDefault();
       apkPick.style.background = 'transparent';
-      if(!isConn() || isBusy() || apkInput.disabled || !e.dataTransfer.files[0]) return;
+      if(!isConn() || !e.dataTransfer.files[0]) return;
       if(!e.dataTransfer.files[0].name.endsWith('.apk')) return;
       apkInput.files = e.dataTransfer.files;
       apkInput.dispatchEvent(new Event('change', { bubbles: true }));
