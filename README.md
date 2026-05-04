@@ -57,6 +57,21 @@ After a successful install, go to **Apps → Unknown Sources** on your headset a
 ## Future updates
 - Ability to export games from the headset
 
+## Remote games source config
+
+QuestLoad now loads the game source from a local JSON config file at `quest-web-installer/public/games-source.json`.
+
+Update these values whenever you need:
+
+```json
+{
+  "url": "https://example.com/api/games",
+  "password": "replace-this-password"
+}
+```
+
+The frontend sends the password in the `x-api-password` header when requesting the games URL.
+
 ## For offline usage
 
 The web installer is built with **Vite**. To run it locally:

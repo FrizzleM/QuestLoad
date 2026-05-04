@@ -23,6 +23,43 @@ let activeStep = 1;
 let stepTransitionTimeout: number | null = null;
 let connected = false;
 
+type GameSourceConfig = {
+  url: string;
+  password: string;
+};
+
+async function loadGameSourceConfig(): Promise<GameSourceConfig> {
+  const response = await fetch("/games-source.json", { cache: "no-store" });
+  if (!response.ok) {
+    throw new Error("Unable to load /games-source.json");
+  }
+
+  const data = await response.json();
+  if (typeof data?.url !== "string" || typeof data?.password !== "string") {
+    throw new Error("/games-source.json must include string values for url and password");
+  }
+
+  return {
+    url: data.url,
+    password: data.password,
+  };
+}
+
+async function fetchGames() {
+  const config = await loadGameSourceConfig();
+  const response = await fetch(config.url, {
+    headers: {
+      "x-api-password": config.password,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Unable to fetch games. Status: ${response.status}`);
+  }
+
+  return response.json();
+}
+
 function browserSupportsWebUsb(): boolean {
   return typeof navigator !== "undefined" && "usb" in navigator;
 }
@@ -90,6 +127,19 @@ function setVisibleStep(step: 1 | 2 | 3) {
 apkInput.addEventListener("change", syncConnectionUi);
 bundleInput.addEventListener("change", syncConnectionUi);
 syncConnectionUi();
+
+void (async () => {
+  try {
+    const games = await fetchGames();
+    if (Array.isArray(games)) {
+      log(`🎮 Loaded ${games.length} games from remote source.`);
+    } else {
+      log("🎮 Games source loaded.");
+    }
+  } catch (e) {
+    logErr(e);
+  }
+})();
 
 function sanitize(name: string): string {
   return name.replace(/[^a-zA-Z0-9._-]/g, "_");
